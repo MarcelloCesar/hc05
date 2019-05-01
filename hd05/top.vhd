@@ -1,3 +1,9 @@
+----------------------------------------------------------------------------------
+-- Author:  Bruno Passos
+-- Module:  Top
+-- Version: 0.1 
+----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -8,45 +14,50 @@ entity top is
 end top;
 
 architecture Behavioral of top is
--- componente RAM
-component ram is 
-	Port( clk  : in STD_LOGIC;
-			rst  : in STD_LOGIC;
-			addr : in STD_LOGIC_VECTOR (7 downto 0);
-			din  : in STD_LOGIC_VECTOR (7 downto 0);
-			rw   : in STD_LOGIC;
-			dout : out STD_LOGIC_VECTOR (7 downto 0)
-);
+--Components
+
+--RAM
+component ram is
+    Port ( clk : in  STD_LOGIC;
+           rst : in  STD_LOGIC;
+           addr : in  STD_LOGIC_VECTOR (7 downto 0);
+           din : in  STD_LOGIC_VECTOR (7 downto 0);
+           rw : in  STD_LOGIC;
+           dout : out  STD_LOGIC_VECTOR (7 downto 0));
 end component;
 
--- componente HC05
-component hc05 is 
-	Port ( clk  : in STD_LOGIC;
-		    rst  : in STD_LOGIC;
-			 dout : in STD_LOGIC_VECTOR (7 downto 0);
-			 din  : in STD_LOGIC_VECTOR (7 downto 0);
-			 addr : out STD_LOGIC_VECTOR (7 downto 0);
-			 rw : out STD_LOGIC);
-end component;			 
+--CPU
+component hc05 is
+    Port ( clk : in  STD_LOGIC;
+           rst : in  STD_LOGIC;
+           dout : in  STD_LOGIC_VECTOR (7 downto 0);
+           din : out  STD_LOGIC_VECTOR (7 downto 0);
+           addr : out  STD_LOGIC_VECTOR (7 downto 0);
+           rw : out  STD_LOGIC;
+			  LED  : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+end component;
 
--- componente divisor de clock
-component dvclk is
+--Clock div
+component divclk is
     Port ( clk : in  STD_LOGIC;
            rst : in  STD_LOGIC;
            clkdiv : out  STD_LOGIC);
 end component;
- 
+
+signal sclkdiv  : STD_LOGIC;
 signal srw   : STD_LOGIC;
 signal sdin  : STD_LOGIC_VECTOR (7 downto 0);
 signal sdout : STD_LOGIC_VECTOR (7 downto 0);
 signal saddr : STD_LOGIC_VECTOR (7 downto 0);
-signal sclk  : STD_LOGIC;
 
 begin
+--debug
+--led <= sdout;
 
-ram1   : ram   port map(sclk, rst, saddr, sdin, srw, sdout); -- nao é o do componente, é o do top
-hc051  : hc05  port map(sclk, rst, sdout, sdin, saddr, srw); 
-dvclk1 : dvclk port map(clk, rst, sclk);
+--Instancias RAM, HC05 e DIVCLK
+divclk1 : divclk  port map (clk, rst, sclkdiv); 
+ram1    : ram     port map (sclkdiv, rst, saddr, sdin, srw, sdout);
+hc051   : hc05    port map (sclkdiv, rst, sdout, sdin, saddr, srw, led);
 
 
 end Behavioral;
