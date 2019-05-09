@@ -26,14 +26,14 @@ begin
 process(clk, rst)
 begin
 	if rst = '1' then
-		ram8x8(0) <= "01001100";
-		ram8x8(1) <= "01001100";
+		ram8x8(0) <= "10100111";
+		ram8x8(1) <= "00000111";
 		ram8x8(2) <= "01001100";
 		ram8x8(3) <= "01001100";
 		ram8x8(4) <= "01001100";
 		ram8x8(5) <= "01001100";
 		ram8x8(6) <= "01001100";
-		ram8x8(7) <= "01001100";
+		ram8x8(7) <= "00000011";
 		
 	elsif clk'event and clk = '1' then
 		-- Operação de escrita

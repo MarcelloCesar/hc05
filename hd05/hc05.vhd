@@ -31,8 +31,11 @@ constant EXECUTA     : STD_LOGIC_VECTOR (2 downto 0) := "100";
 
 --Registradores
 signal A  : STD_LOGIC_VECTOR (7 downto 0);
+signal X  : STD_LOGIC_VECTOR (7 downto 0);
 signal PC : STD_LOGIC_VECTOR (7 downto 0);
 SIGNAL OPCODE : STD_LOGIC_VECTOR (7 DOWNTO 0);
+signal fase   : STD_LOGIC_VECTOR (1 downto 0);
+SIGNAL AUX    : STD_LOGIC_VECTOR (7 DOWNTO 0);
 
 begin
 
@@ -46,6 +49,7 @@ begin
 		A  <= "00000000";
 		PC <= "00000000";
 		ESTADO <= RESET1;
+		FASE <= "00";
 	elsif clk'event and clk = '1' then
 		--Maquina de Estados
 		CASE ESTADO IS
@@ -53,6 +57,7 @@ begin
 				PC <= "00000000"; -- PRIMEIRO ENDERECO
 				RW <= '0';        -- MODO LEITURA
 				ESTADO <= RESET2;	
+				FASE <= "00";
 				
 			WHEN RESET2 =>
 				
@@ -68,13 +73,43 @@ begin
 					WHEN "01001100" => -- INC A - 4C
 						A <= A + 1;
 						ESTADO <= EXECUTA;
+					
+					WHEN "10100110" => -- LDA # IMEDIATO - A6
+					
+						IF FASE = "00" THEN						
+							PC <= PC + 1;
+							FASE <= "01";
+						ELSE 							
+							A <= DOUT;							
+							ESTADO <= EXECUTA;
+						END IF;
+						
+					WHEN "10100111" =>
+						
+						IF FASE = "00" THEN
+							PC <= PC + 1;
+							FASE <= "01";
+							
+						ELSIF FASE = "01" THEN
+							AUX <= PC;
+							PC <= DOUT;
+							FASE <= "10";							
+							
+						ELSIF FASE = "10" THEN
+							A <= DOUT;
+							PC <= AUX;							
+							ESTADO <= EXECUTA;
+						END IF;				
+				
 					WHEN OTHERS => NULL;
+
 				END CASE; 
 				
 				
 			WHEN EXECUTA =>
 				PC <= PC + 1;
-				ESTADO <= BUSCA;		
+				ESTADO <= BUSCA;	
+				FASE <= "00";				
 				
 			WHEN OTHERS => NULL;
 		END CASE;
