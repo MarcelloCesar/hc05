@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------
--- Author:  Bruno Passos
+-- Author:  Marcello cesar
 -- Module:  Top
 -- Version: 0.1 
 ----------------------------------------------------------------------------------
@@ -15,7 +15,11 @@ entity hc05 is
            din  : out  STD_LOGIC_VECTOR (7 downto 0);
            addr : out  STD_LOGIC_VECTOR (7 downto 0);
            rw   : out  STD_LOGIC;
-			  LED  : OUT STD_LOGIC_VECTOR(7 DOWNTO 0));
+			  LED  : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+			  enter : in STD_LOGIC;
+			  dado  : in STD_LOGIC_VECTOR (3 downto 0);
+			  an    : out STD_LOGIC_VECTOR(3 downto 0);
+			  seg   : out STD_LOGIC_VECTOR(7 downto 0));
 end hc05;
 
 architecture Behavioral of hc05 is
@@ -41,9 +45,31 @@ begin
 
 addr <= PC;
 LED <= A;
+an <= "1110";
+
+	
+	
 
 process(clk, rst)
 begin
+	case A is
+	when "00000000" =>  seg <= "11000000";--0	
+	when "00000001" =>  seg <= "11111001";--1 
+	when "00000010" =>  seg <= "10100100";--2 
+	when "00000011" =>  seg <= "10110000";--3 
+	when "00000100" =>  seg <= "10011001";--4 
+	when "00000101" =>  seg <= "10010010";--5 
+	when "00000110" =>  seg <= "10000010";--6 
+	when "00000111" =>  seg <= "11111000";--7 
+	when "00001000" =>  seg <= "10000000";--8 
+	when "00001001" =>  seg <= "10011000";--9 
+	when "00001010" =>  seg <= "10001000";--A 
+	when "00001011" =>  seg <= "10000011";--B 
+	when "00001100" =>  seg <= "11000110";--C 
+	when "00001101" =>  seg <= "10100001";--d 
+	when "00001110" =>  seg <= "10000110";--E
+	when others =>   seg <= "10001110";--F
+end case;
 
 	if rst = '1' then
 		A  <= "00000000";
@@ -139,9 +165,18 @@ begin
 						A <= A - 1;
 						ESTADO <= EXECUTA;
 						
-					
-					
-					
+						
+					WHEN "11111111" =>		
+						IF FASE = "00" THEN
+							IF ENTER = '1' THEN						
+								A    <= "00000000" + DADO;								
+								FASE <= "01";
+							END IF;
+						ELSE
+							IF ENTER = '0' THEN
+								ESTADO <= EXECUTA;
+							END IF;
+						END IF;
 					
 					WHEN OTHERS => NULL;
 
